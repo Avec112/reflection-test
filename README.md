@@ -22,3 +22,6 @@ Valid classifications in this example is A through D and also NO_ACCESS. A is th
 A manager of some kind would typically define classification level for each getter method of a data object. This results in the **ClassificationRules** class. 
 
 **ClassificationService** have the methods that puts it all together. 
+
+![model](readme/model.png)
+![table](readme/table.png)
