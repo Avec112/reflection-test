@@ -2,7 +2,7 @@
 
 This application is a simple implementation with help from reflection.
 
-The point is to hide information of a data object that the user do not have clearance to see.
+The point is to hide specific field information in a data object that the user do not have clearance to see.
 
 **User** is a simple object containing username and security clearance level for a simulated user.
 
