@@ -16,7 +16,7 @@ This information should be stored somewhere for every data class. In this exampl
 information of what fields (getter methods) the user is allowed access to.
 
 ## How is this solved?
-Reflection is used to find declared methods starting with get. When we have all getters we use the methodnames as key for a map. By default we put all values to **Classification.NO_ACCESS**. This ensure us that we do not accidently show info to users that do not have the right clearance level.
+Reflection is used to find declared methods starting with string "get". With all getters in hand we put the methodnames as key inside a map. By default we set all values to **Classification.NO_ACCESS** . This ensure us that we do not accidently show info to users that do not have the right clearance level.
 Valid classifications in this example is A through D and also NO_ACCESS. A is the lowest level and D the highest.
 
 A manager of some kind would typically define classification level for each getter method of a data object. This results in the **ClassificationRules** class. 
