@@ -5,12 +5,11 @@ package io.avec.reflectiontest.classification;
  */
 public enum Classification {
 
-    // A is lowest and D highest
-    A(1),
-    B(2),
-    C(3),
-    D(4),
-    NO_ACCESS(100); // Useful for default or just plain hidden
+    UNCLASSIFIED(1),
+    RESTRICTED(2),
+    CONFIDENTIAL(3),
+    SECRET(4),
+    NO_ACCESS(100); // Useful for default or just plain hidden for all
 
     private int rank;
     Classification(int rank) {
