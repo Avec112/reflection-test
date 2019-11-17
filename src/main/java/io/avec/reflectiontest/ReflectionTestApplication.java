@@ -1,33 +1,35 @@
 package io.avec.reflectiontest;
 
+import io.avec.reflectiontest.address.Address;
 import io.avec.reflectiontest.address.AddressRepository;
 import io.avec.reflectiontest.classification.*;
-import io.avec.reflectiontest.address.Address;
 import io.avec.reflectiontest.person.Person;
 import io.avec.reflectiontest.person.PersonRepository;
 import io.avec.reflectiontest.person.Sex;
 import io.avec.reflectiontest.user.User;
 import io.avec.reflectiontest.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @SpringBootApplication
 public class ReflectionTestApplication  {
 
+    private final ClassificationService classificationService;
     private final PersonRepository personRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final ClassificationRuleRepository classificationRuleRepository;
 
-    public ReflectionTestApplication(PersonRepository personRepository, AddressRepository addressRepository, UserRepository userRepository, ClassificationRuleRepository classificationRuleRepository) {
+    public ReflectionTestApplication(ClassificationService classificationService, PersonRepository personRepository, AddressRepository addressRepository, UserRepository userRepository, ClassificationRuleRepository classificationRuleRepository) {
+        this.classificationService = classificationService;
         this.personRepository = personRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
@@ -64,26 +66,39 @@ public class ReflectionTestApplication  {
             log.debug("created {}", person2);
 
             // Create rules
-            var personRules = new ArrayList<ClassificationRule>();
-            getPersonRules().forEach(rule -> personRules.add(classificationRuleRepository.save(rule)));
+            var personRules = getPersonRules();
             log.debug("created rules {}", personRules);
 
         });
     }
 
     private List<ClassificationRule> getPersonRules() {
-        var rules = new ArrayList<ClassificationRule>();
-        var objectName = Person.class.getName();
-        rules.add(new ClassificationRule(objectName, "getId", Classification.UNCLASSIFIED));
-        rules.add(new ClassificationRule(objectName, "getNickName", Classification.RESTRICTED));
-        rules.add(new ClassificationRule(objectName, "getFirstName", Classification.CONFIDENTIAL));
-        rules.add(new ClassificationRule(objectName, "getLastName", Classification.SECRET));
-        rules.add(new ClassificationRule(objectName, "getDateOfBirth", Classification.CONFIDENTIAL));
-        rules.add(new ClassificationRule(objectName, "getNationality", Classification.RESTRICTED));
-        rules.add(new ClassificationRule(objectName, "getSex", Classification.CONFIDENTIAL));
-        rules.add(new ClassificationRule(objectName, "getAddress", Classification.SECRET));
-        return rules;
+
+        // Create default rules. All with Classification.NO_ACCESS
+        classificationService.createAndSaveDefaultClassificationRules(Person.class);
+
+        // Define specific rules for class Person
+        modifyRule("getId", Classification.UNCLASSIFIED);
+        modifyRule("getNationality", Classification.RESTRICTED);
+        modifyRule("getNickName", Classification.RESTRICTED);
+        modifyRule("getDateOfBirth", Classification.CONFIDENTIAL);
+        modifyRule("getFirstName", Classification.CONFIDENTIAL);
+        modifyRule("getSex", Classification.CONFIDENTIAL);
+        modifyRule("getAddress", Classification.SECRET);
+        modifyRule("getLastName", Classification.SECRET);
+
+        // return all rules for Person
+        return classificationRuleRepository.findByClassificationRuleIdClassName(Person.class.getName());
     }
+
+    private void modifyRule(String methodName, Classification classification) {
+        Optional<ClassificationRule> rule = classificationRuleRepository.findById(new ClassificationRuleId(Person.class.getName(), methodName));
+        rule.ifPresent((theRule) -> {
+            theRule.setClassification(classification);
+            classificationRuleRepository.save(theRule);
+        });
+    }
+
 
     // example data. Person implements UnclassifiedData
     private Person getPerson1(Address address) {

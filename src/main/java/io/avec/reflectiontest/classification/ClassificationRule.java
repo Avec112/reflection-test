@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 
 /**
  * Created by avec112 on 12.11.19.
@@ -14,16 +15,12 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 public class ClassificationRule {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-    private String className;
-    private String methodName;
+    @EmbeddedId
+    private ClassificationRuleId classificationRuleId;
     private Classification classification;
 
-    public ClassificationRule(String className, String methodName, Classification classification) {
-        this.className = className;
-        this.methodName = methodName;
+    public ClassificationRule(ClassificationRuleId classificationRuleId, Classification classification) {
+        this.classificationRuleId = classificationRuleId;
         this.classification = classification;
     }
 }

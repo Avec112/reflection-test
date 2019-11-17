@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ClassificationRuleRepository extends CrudRepository<ClassificationRule, Long> {
-    List<ClassificationRule> findByClassName(String className);
+public interface ClassificationRuleRepository extends CrudRepository<ClassificationRule, ClassificationRuleId> {
+    List<ClassificationRule> findByClassificationRuleIdClassName(String className);
 }
