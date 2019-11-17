@@ -62,6 +62,8 @@ public class ReflectionTestApplication  {
             Address address2 = addressRepository.save(new Address("Bakerstreet 341", "06255", "Los Angeles", "USA"));
             Person person2 = personRepository.save(getPerson2(address2));
             log.debug("created {}", person2);
+
+            // Create rules
             var personRules = new ArrayList<ClassificationRule>();
             getPersonRules().forEach(rule -> personRules.add(classificationRuleRepository.save(rule)));
             log.debug("created rules {}", personRules);

@@ -2,26 +2,41 @@
 
 This application is a simple implementation with help from reflection.
 
-The point is to hide specific field information in a data object that the user do not have clearance to see.
+The point is to hide specific field information in a data object that the user do not have security clearance to access.
 
 **User** is a simple object containing username and security clearance level for a simulated user.
 
-A data class implements **UnclassifiedData**. All fields is visible at this time.
-Data can be anything. In this example a **Person** with some fields.
+A data class could be Person, Address, Document, RocketDetails, Contract or whatever. This information is stored i clear text in a database.
 
-**ClassificationRules** is object containing a map with all the getter method names of the unclassified data class.
-This information should be stored somewhere for every data class. In this example it is hard coded. 
+**List<ClassificationRule>** is a list of rules. One rule tells us what classification a certain getter method has for this particular data class. 
 
-**ClassifiedData** is the result of Users clearance level and Classification rules put together leaving us with a map with
-information of what fields (getter methods) the user is allowed access to.
+**ClassifiedData** contains User, className, values and the rules. The values is a map where methodName is the key and value store the classification. Each value contains what the user is allowed to access in a data class. 
 
 ## How is this solved?
-Reflection is used to find declared methods starting with string "get". With all getters in hand we put the methodnames as key inside a map. By default we set all values to **Classification.NO_ACCESS** . This ensure us that we do not accidently show info to users that do not have the right clearance level.
-Valid classifications in this example is A through D and also NO_ACCESS. A is the lowest level and D the highest.
+Reflection is used to find declared methods starting with string "get". With all getters in hand we create a ClassificationRule pr method. By default we set all values to **Classification.NO_ACCESS** . This ensure us that we do not accidently show info to users that do not have the right clearance level. 
 
-A manager of some kind would typically define classification level for each getter method of a data object. This results in the **ClassificationRules** class. 
+Valid classifications in this example is UNCLASSIFIED, RESTRICTED, CONFIDENTIAL, SECRET and also NO_ACCESS. .
 
-**ClassificationService** have the methods that puts it all together. 
+A manager or admin would typically define classification level for each getter method of a data object. This results in the **List<ClassificationRule>**. 
+  
+The application creates dummy data when started. 
+* Users with id 1,2,3,4. User 1 has UNCLASSIFIED access, 2=RESTRICTED, 3=CONFIDENTIAL and 4=SECRET
+* Person with id 1,2
+* ClassificationRules for Person
+
+See ReflectionTestApplication method getPersonRules() to se what access is given for what method. 
+
+See **ClassificationService**, **PersonService** and **PersonController** for more information. 
 
 ![model](readme/model.png)
 ![table](readme/table.png)
+
+## How to run
+* Start the ReflectionTestApplication from IDE or with help of maven (mvn springboot:run)
+* Use Curl, Postman or what you prefer to access an url with support for headers.
+* Create Header userid with a prefered id between 1 and 4
+* To get a ClassifiedData object representing Person use url http://localhost:8080/classified/data/person/1
+* To get a classified version of Person use url http://localhost:8080/classified/person/1
+
+The result should provide something like shown in the image below (using Postman)
+![postman](readme/postman.png)
